@@ -1,0 +1,121 @@
+YOLO:
+
+_____ You Only Look Once: Unified, Real-Time Object Detection | Redmon, Divvala, Girshick and Farhadi.  
+
+Prior work on object detection puproses classifiers to perform detection. Instead, YOLO frame detection as a
+regression problem to spatially separated bounding boxes and associated class probabilites.
+Unlike sliding windows and region proposal based techniques, YOLO sees the entire image during training and 
+test time so it can encodes contextual information as well as appearance. One of the main lags of this method 
+is the struggles it has on trying to detect small objects.
+
+Tho YOLO model:
+	1. Division of the image into an S x S grid (for VOC 2007, s=7)
+	2. Prediction of B bounding box for each grid cell (for VOC 2007, B=2)
+	3. Confidence and C class probabilities for each bbox (for VOC 2007, C=20)
+
+The YOLO network:
+	- Convolutional Neural Network, inspired on GoogLeNet model.
+	- Composed by 24 convolutional layers followed by 2 fully connected layers.
+	- Alterning 1 x 1 convolutional layers to reduce te feature space.
+
+Training:
+	- Layers pretrained on the ImageNet dataset (using the 20 first layers + avg + fully connected)
+	- Double the resolution, use of the sum-squared error based on appearance of the object and responsability of Bboxes.
+	- Training for 135 epochs on VOC 2007 validation dataset.
+	- To prevent Overfitting they use dropout and extensive data augmentation
+
+Limitations of YOLO:
+	- YOLO imposes strong spatial constrains on bounding box predictions (each grid cell predicts 2 boxes|1 class).
+	- Difficult to generalize over new aspect ratios or configurations.
+	- Main source of errors is incorrect localizations due the loss functiions treat small and large bbox the same.
+
+Comparison to other detection systems:
+	- Deformable parts models (DPM): YOLO is a faster and more accurate model due the non static features trained.
+	- R-CNN: YOLO mitigates multiple detections of the same object and proposes a fewer bboxes (98 YOLO vs 2000)
+	- Deep MultiBox: despit both use convolutional network to predict bboxes, YOLO is a complete detection system.
+	- OverFeat: it cannot reason about global context and thus requires significant post-processing to get good results.
+	- MultiGrasp: despite being both similar, YOLO predicts bbox and class probabilities for multiple objects and classes.
+
+Experiments:
+	- Real-Time System: fastest detector for VOC and still twice as accurate as any other real-time detector.
+	- Error Analysis: YOLO performs good on detecting background but still strugles in some localizations.
+	- Generalizability: YOLO can still predict bounding boxes and detections on Artwork and natural images.
+
+Conclusions:
+	- Simple, fast, unified, directly appliable to full images, generalizable and robust object detector.
+
+_______YOLO 9000: Better, Faster, Stronger | Redmon and Farhadi
+
+A new method was proposed for the CVPR 2017,  the authors call it YOLOv2 and it is an evolution of the previous mentioned YOLO.
+YOLO 9000 is trained using YOLOv2 on ImageNet classification dataste and COCO detection dataset but it can detect more than 200 
+classes, predict detection for more than 9000 different objects and still run in real-time.
+
+Said to be Better for:
+	- Batch Normalization: improvements on convergence and regularization. No need of dropout anymore. (+2% of improvement on mAP)
+	- High Resolution Classifier: it starts using ImageNet on 448 x 448 resoultion for 10 epochs. (4% of improvement on mAP)
+	- Convolution With Anchor Boxes: non 98 predicted boxes if not thousands, non improvement on mAP but said to have more room to improve.
+	- Dimension Cluster: to choose prior boxes they run k-means clustering on the dimension of bboxes to get good priors.
+	- Direct location prediction: for giving more stability on the early iterations for bbox coordinates location. (+5% over anchor version)
+	- Hi-Resolution detector: fixed input image size, changing the network every few iterations it will be capable to operate on different resolutions. 
+	- Final Result on VOC 2007: original YOLO 63.4% vs last YOLOv2 78,6% | +15% of improvement! |
+
+Said to be Faster for:
+	- Darknet-19: 19 conv + 5 maxpool, 5.5 billion operations to process an image vs 8.5 billion.
+	- Training for classification: ImageNet 1000 classes, 160 epochs usage of random crops, rotations, hue, saturation and exposure shifting.
+	- Training for detection: removing the last conv layer and adding three 3 x 3 conv layers with 1024 filters. 
+
+Said to be Stronger for:
+	- Usage of a multi-label model to combine the datasets which does not assume mutual exclusion.
+	- Hierchical classification: a hierchical tree from the concepts is built in ImageNet with the help of WordNet.
+	- Dataset combination with WordTree: for combining different datasets by syntesising categories on the trees.
+	- Joint classification and detection: it can finds objects with coco and classify a wide variety with ImageNet data.
+
+Conclusions:
+	- YOLOv2 and YOLO 9000 were introduced.
+	- YOLOv2 is a state-of-the-art and faster than other detection systems.
+	- YOLO 9000 is a real-time framework for detection more than 9000 object categories.
+	- WordTree was used to combine data from various sources to train simultaneously on ImageNet and COCO.
+	- The solution offers a richer, more detailed output space for image classification.
+	- Further work could be adressed on applying these techniques on image segmentation
+
+
+________ SqueezeDet: Unified, Small, Low Power Fully Convolutional Neural Networks
+for Real-Time Object Detection for Autonomous Driving | Wu, Wan, Iandola, Jin, Keutzer (UC Berkeley, DeepScale)
+
+A fully convolutional neural network for object detection that aims to simultaneously satisfy a high accuracy, real-time inference, small 
+model size and energy efficiency to enable embedded system deployment.
+The model is very accurate, achieving the state-of-the-art accuracy on the KITTI benchmark.
+A description of the network could be a fully convolutional neural network for object detection. First stacked conv filters to extract a high dimensional, low 
+resolution feature map for the input image. Then a ConvDet, a convolutional layer to take the bboxes as input and predict their categories.
+
+Related Work:
+	- CNNs for object detection: YOLO proposed one single stage classification achiving real-time speed for the first time.
+	- Small CNN models: the tendency has been to reducy dramatically (50x smaller) the models achiving the same results.
+	- Fully convolutional networks: a final average pooling layer offers the vector class probabilities.
+
+Method Description:
+	- Detection pipeline: region proposition and classification is performed by one single network. The ConvDet layer computes bounding boxes 
+	  finally, the top N bounding boxes are kept and by means of Non-Maximum Suppression it is obtained the final detections.
+	- ConvDet: it helps to reduce the number of parameters generated with YOLO when proposing the regions. Basically is a conv layer that
+	  is trained to ouput bboxes coordinates and class probabilites. 
+	- Training protocol: SqueezeDet can be trained end-to-end, similarly of YOLO. A multi-task loss function is defined 
+	  related to each anchor box, confidence score and loss entropy for classification.
+	- Neural Network Design: 
+		·Model Size: squeeze model as a input (1 x 1 conv) and two parallel expand layers as output (1 x 1 and 3 x 3 conv filters).
+		·Energy Efficiency: use small models which reduces the memory access for parameters. Using conv instead of fully when possible.
+
+Experiments on KITTI object detection:
+	- Recall: recall is essential for the safety of autonomous vehicles. 92% of recall can be achived but 80% is the optimal recall by using the top
+	  64 bboxes.
+	- Speed: first to achieve real-time inference speed on KITTI dataset. Up to time, the fastest was 10 fps and with squeezeDet the results
+	  achieve 57 fps with better accuracy.
+	- Model size: 30 times smaller than Faster R-CNN + AlexNet.
+
+Design space exploration:
+	- Image resolution: Normally increasing resolution it has an impact on increasing the recall but it means more time.
+	- Number of anchors: the more anchors implies more bboxes and better accuracy, but lower accuracy in this case.
+	- Model architecture: the bigger the model, the better the accuracy but the more power and space it needs.
+
+Conclusions:
+	- Models are designed to be small, fast, energy efficient and accurate.
+	- On all the metrics this model advanced the state-of-the-art.

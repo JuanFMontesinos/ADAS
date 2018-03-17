@@ -1,0 +1,37 @@
+# This file is the summary of two papers about two kinds of network architectures: VGG & SqueezeNet
+
+--------------------------------------------------------------------------------------------------------------------
+
+## VGG networs: 
+<VERY DEEP CONVOLUTIONAL NETWORKS FOR LARGE-SCALE IMAGE RECOGNITION>
+VGG is a networks architecture that takes advantage of deeper networks and smaller filters to achieve better performance than CNNs. The main contribution of this paper consists in coming up with significantly more accurate Convolutional Net architectures and evaluating how this achieve with increasing depth in CNNs and using smaller filters. 
+
+The evaluation consists in using deep architectures (from 11 layers to 19) which alternate stacks of convolutional layers with small filters 3×3 and max pooling layers 2×2. The smaller networks A converged and were used as initializations for the larger, deeper networks — this process is called pre-training. With this VGG framework, they achieved state-of-the-art results on ILSVRC classification and also achieve excellent performance on other image recognition datasets, even when used as a part of a relatively simple pipelines.
+
+The focal points of this paper can be concluded below:
+1.Processing the input image using a stack of convolutional layers with very small filters. Before this, it was more conventional to set large receptive fields (11×11, 9×9, 7×7…) to the first convolutional layers, whereas this paper is dedicated to clarify that the size of the effective receptive field of a N convolutional layers stack with 3×3 filters is equal to convolutional layers with one (2N+1) x (2N+ 1) filter. For instance, a stack of three convolutional layers with 3×3 filters has a 7×7 receptive field with respect to the input image. 
+Instead of adding only one non-linearity, as it is the case when using a single 7×7 convolutional layer, more non-linearities are introduced. Therefore, the learnt decision function can be more discriminative. Moreover, for a fixed receptive field, stacking convolutional layers permits to decrease the number of parameters. Therefore, stacking three convolutional layers with 3×3 filters can be seen as a regularisation on the 7×7 convolutional filters, forcing them to have a 3×3 decomposition.
+2.In spite of the larger number of parameters and the greater depth of the architectures, the nets required less epochs to converge due to: the implicit regularisation imposed by greater depth and smaller convolutional filter sizes, and pre-initialisation of certain layers.
+3.Training images augmentation. They considered and compared two approaches for setting the training scale to further augment the training set: two fixed scales and multi-scale from a certain range.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+## SqueezeNet: 
+
+<SQUEEZENET: ALEXNET-LEVEL ACCURACY WITH 50X FEWER PARAMETERS AND <0.5MB MODEL SIZE>
+SqueezeNet is a small architecture which can achieve AlexNet-level accuracy but with 50x fewer parameters, and also be compressed to less than 0.5MB. It takes advantage of a fewer number of parameters, which helps it to have a more efficient distribution training, have less overhead when exporting new models to clients and be feasible in FPGA and embedded deployment. In general speaking, the overarching goal of this paper is to identify a model that has very few parameters while preserving accuracy.
+
+There are three main strategies have been mentioned:
+1. Replace 3x3 filters with 1x1 filters. (decreasing the quantity of parameters and preserve accuracy)
+2. Using 1x1 filters as a bottleneck layer to reduce depth to reduce computation of the following 3x3 filters. (decreasing the quantity of parameters and preserve accuracy)
+3. Downsample late in the network to keep large activation maps. (maximizing accuracy on a limited budget of parameters.)
+
+The bottleneck layer is called Fire Module which contains two layers: a squeeze layer and an expand layer. 
+In this way, squeeze convolution layer which has only 1x1 filters will be inputed into an expand layer that 
+has a mix of 1x1 and 3x3 convolution filters.
+Three tunable dimensions are belowed:
+1. s1x1 - the number of 1x1 filters in the squeeze layer
+2. e1x1 - the number of 1x1 filters in the expand layer
+3. e3x3 - the number of 3x3 filters in the expand layer
+The use of 1x1 filters in Fire Modules is liberal (strategy 1). s1x1 need to be less than (e1x1 + e3x3), so the squeeze layer helps to limit the number of input channels to the 3x3 filters(strategy 2)
+The squeeze layer and expand layer keep the same feature map size, while the former reduce the depth to a smaller number, the later increase it.
