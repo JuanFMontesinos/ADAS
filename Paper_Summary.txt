@@ -1,6 +1,7 @@
 # This file is the summary of two papers about two kinds of network architectures: VGG & SqueezeNet
 
 --------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
 
 ## VGG networs: 
 <VERY DEEP CONVOLUTIONAL NETWORKS FOR LARGE-SCALE IMAGE RECOGNITION>
